@@ -1,6 +1,6 @@
 # 🟢 **Semáforos Auto-Organizados**
 
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white) ![Tkinter](assets/VideoSimulacionSemaforos.gif)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white) ![Tkinter](https://img.shields.io/badge/Tkinter-286090?style=for-the-badge&logo=tcl&logoColor=white)
 
 Este proyecto implementa una **simulación de semáforos auto-organizados** en Python, basada en reglas adaptativas para gestionar el flujo de tráfico de manera eficiente.
 
