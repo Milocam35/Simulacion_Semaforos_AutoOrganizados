@@ -1,0 +1,21 @@
+# Parámetros del sistema
+SEED = 42
+r = 1
+d = 4
+e = 2
+n = 4
+u = 6
+YELLOW_TIME = 1
+
+IN_LENGTH = 6
+OUT_LENGTH = 6
+SPAWN_PROB = 0.3
+MAX_TICKS = 200
+SLEEP = 0.8
+
+# Configuración gráfica
+CANVAS_WIDTH = 800
+CANVAS_HEIGHT = 600
+ROAD_WIDTH = 60
+CAR_SIZE = 20
+TRAFFIC_LIGHT_SIZE = 15
