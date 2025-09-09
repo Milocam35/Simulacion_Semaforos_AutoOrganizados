@@ -77,16 +77,6 @@ Un semáforo **autoorganizado** significa que **no sigue un ciclo fijo** (como 3
   <ul>
     <li>Ambos empiezan en rojo y <code>prioridad = None.</code></li>
     <li>Cuando los dos pidan verde al mismo tiempo por primera vez, decides aleatoriamente quién empieza y actualizas <code>prioridad</code>.</li>
-    <li><strong>Ejemplo:</strong>
-      <pre>
-        <code>
-  prioridad = None
-  if semaforo_ns.solicita and semaforo_ew.solicita:
-      if prioridad is None:
-         prioridad = random.choice(["semaforo1", "semaforo2"])
-        </code>
-      </pre>
-    </li>
   </ul>
 </blockquote>
 
@@ -101,11 +91,11 @@ Un semáforo **autoorganizado** significa que **no sigue un ciclo fijo** (como 3
 <blockquote>
   <ol>
     <li><code>r</code> → Distancia mínima antes del semáforo y el auto, definido como un solo bloque.</li>
-    <li><code>d</code> → Distancia máxima para la detección de autos antes de un semáforo, definida por 4 bloques.</li>
-    <li><code>e</code> → Distancia corta mas allá de la intersección definida por 2 bloques.</li>
-    <li><code>n</code> → Umbral de cantidad de vehículos a una distancia d detrás de un semáforo en rojo (4 vehículos).</li>
+    <li><code>d</code> → Distancia máxima para la detección de autos antes de un semáforo, definida por 6 bloques.</li>
+    <li><code>e</code> → Distancia corta mas allá de la intersección definida por 3 bloques.</li>
+    <li><code>n</code> → Umbral de cantidad de vehículos a una distancia d detrás de un semáforo en rojo (3 vehículos).</li>
     <li><code>c</code> → Contador de vehículos a una distancia d detrás de un semáforo en rojo.</li>
-    <li><code>u</code> → Tiempo mínimo de espera de un semáforo en verde (6 tics).</li>
+    <li><code>u</code> → Tiempo mínimo de espera de un semáforo en verde (4 tics).</li>
   </ol>
 </blockquote>
 
@@ -113,6 +103,70 @@ Un semáforo **autoorganizado** significa que **no sigue un ciclo fijo** (como 3
 
 *Imagen ilustrativa de como se representaran las carreteras, tomando las distancias como bloques en los arreglos.*
 
-# 3. Comparación Semaforos AutoOrganizados vs Semaforos Estáticos.
+# 3. Comparación Semáforos AutoOrganizados vs Semáforos Estáticos
+
+La comparación entre semáforos autoorganizados y estáticos muestra que no existe un sistema universalmente mejor, sino que la eficiencia depende directamente del escenario de tráfico. Los **semaforos estáticos** presentan ventajas cuando el flujo vehicular es **constante y balanceado**, ya que eliminan el tiempo de decisión y garantizan ciclos predecibles que se aprovechan de forma uniforme en todas las direcciones. En estas condiciones, el “overhead” de cálculo que requieren los autoorganizados puede convertirse en una desventaja.
+
+Por otro lado, los **semaforos autoorganizados** destacan en situaciones de **tráfico irregular, asimétrico o muy ligero**, ya que pueden adaptarse dinámicamente y evitar el desperdicio de tiempo otorgando luz verde a carriles vacíos. Esto los convierte en una solución más eficiente frente a escenarios impredecibles o con picos de congestión, donde los semáforos fijos tienden a generar esperas innecesarias.  
+
+## **Por qué los Semáforos Estáticos Pueden Ser Más Rápidos:**
+
+### **1. Overhead de Decisión**
+- **Estáticos**: Cambio automático sin cálculos → 0 tiempo perdido
+- **Autoorganizados**: Tiempo gastado en contar, evaluar reglas, decidir
+- **Resultado**: Los estáticos no "dudan", simplemente cambian
+
+### **2. Predictibilidad vs Adaptabilidad**
+- **Estáticos**: Tiempo fijo garantizado para cada dirección
+- **Autoorganizados**: Pueden "desperdiciar" verde esperando que lleguen más autos
+- **Ventaja estática**: Utilización garantizada del tiempo verde
+
+### **3. Escenarios donde los Estáticos Ganan:**
+
+1. **Tráfico Regular/Balanceado:**
+   - Si ambas direcciones tienen flujo constante y similar
+   - Los ciclos fijos aprovechan mejor el tiempo total
+   - No hay "tiempo perdido" esperando decisiones
+
+2. **Densidad de Tráfico Media:**
+   - Los autoorganizados brillan en extremos (muy poco o mucho tráfico)
+   - En densidad media, los estáticos son más eficientes
+
+### **Escenarios donde Autoorganizados DEBERÍAN ganar:**
+
+1. **Tráfico Muy Asimétrico**
+   - Una dirección con 10 autos, otra con 1 auto
+   - Los estáticos desperdiciarían tiempo dando verde a la dirección vacía
+
+2. **Picos de Tráfico Irregulares** 
+   - Tráfico que llega en ráfagas impredecibles
+   - Los autoorganizados se adaptan, los estáticos no
+
+3. **Tráfico Muy Ligero**
+   - Pocos autos en ambas direcciones
+   - Los autoorganizados dan verde solo cuando es necesario
+
+##  **Posibles Problemas en tu Simulación:**
+
+### **1. Parámetros Mal Calibrados**
+```python
+# Tal vez demasiado conservadores:
+u = 4  # Puede ser muy corto y genera muchos cambios
+n = 3  # puede ser muy sensible, cambia por pocos autos
+```
+
+### **2. Lógica de Reglas Puede Ser Ineficiente**
+- ¿Los autoorganizados están "dudando" demasiado?
+- ¿Hay tiempo perdido en evaluaciones?
+- ¿Se están aplicando reglas contradictorias?
 
 
+##  **Pruebas Realizadas:**
+
+### **Test 3: Tráfico Ligero**
+```python
+# Muy pocos autos (5-10% probabilidad)
+# Los autoorganizados deberían dar verde solo cuando es necesario, por lo tanto, tienen un mejor desempeño 
+```
+
+En conclusión, los semáforos estáticos pueden resultar más rápidos en condiciones de tráfico estable y balanceado, mientras que los autoorganizados ofrecen mejoras significativas cuando las condiciones cambian de manera dinámica. Por ello, el valor de cada sistema no radica en la velocidad aislada de los ciclos, sino en su capacidad de adaptarse (o no) al contexto real del flujo vehicular.
