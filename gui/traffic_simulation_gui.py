@@ -4,7 +4,8 @@ import time
 from simulation.simulation import Simulation
 from utils.config import r, d, e, n, u, MAX_TICKS
 from utils.config import CANVAS_WIDTH, CANVAS_HEIGHT, ROAD_WIDTH, CAR_SIZE, IN_LENGTH
-
+from simulation.static_simulation import StaticSimulation  # Asegúrate de tener este import
+import tkinter.messagebox as messagebox
 
 class TrafficSimulationGUI:
     def __init__(self, root):
@@ -12,6 +13,9 @@ class TrafficSimulationGUI:
         self.root.title("🚦 Simulador de Semáforos Auto-Organizantes")
         self.root.geometry("1000x700")
         self.root.configure(bg='#2c3e50')
+
+        # Variable para tipo de simulación
+        self.sim_type = tk.StringVar(value="auto")  # "auto" o "static"
 
         # Variables de simulación
         self.simulation = None
@@ -39,9 +43,21 @@ class TrafficSimulationGUI:
                               font=('Arial', 16, 'bold'), bg='#34495e', fg='white')
         title_label.pack(pady=10)
 
+        sim_type_frame = tk.Frame(control_frame, bg='#34495e')
+        sim_type_frame.pack(pady=5)
+        tk.Label(sim_type_frame, text="Tipo de simulación:", bg='#34495e', fg='white', font=('Arial', 11, 'bold')).pack(side=tk.LEFT, padx=(0, 10))
+        tk.Radiobutton(sim_type_frame, text="Autoorganizada", variable=self.sim_type, value="auto",
+                       bg='#34495e', fg='white', selectcolor='#2ecc71', font=('Arial', 10)).pack(side=tk.LEFT)
+        tk.Radiobutton(sim_type_frame, text="Estática", variable=self.sim_type, value="static",
+                       bg='#34495e', fg='white', selectcolor='#e67e22', font=('Arial', 10)).pack(side=tk.LEFT)
+        
         # Botones de control
         button_frame = tk.Frame(control_frame, bg='#34495e')
         button_frame.pack(pady=5)
+
+        self.compare_btn = tk.Button(button_frame, text="📊 Comparar 10x10", command=self.run_batch_comparison,
+                                    bg='#2980b9', fg='white', font=('Arial', 12, 'bold'))
+        self.compare_btn.pack(side=tk.LEFT, padx=5)
 
         self.start_btn = tk.Button(button_frame, text="▶️ Iniciar", command=self.start_simulation,
                                   bg='#27ae60', fg='white', font=('Arial', 12, 'bold'))
@@ -142,18 +158,54 @@ class TrafficSimulationGUI:
         params_text = f"r={r}, d={d}, e={e}\nn={n}, u={u}"
         tk.Label(params_frame, text=params_text, bg='#34495e', fg='#bdc3c7',
                 font=('Arial', 9), justify=tk.LEFT).pack(padx=5, pady=5)
+    
+    def run_batch_comparison(self, num_runs=10, ticks=500):
+        results_auto = []
+        results_static = []
 
-    def reset_simulation(self):
+        for sim_type in ["auto", "static"]:
+            for _ in range(num_runs):
+                if sim_type == "auto":
+                    sim = Simulation()
+                else:
+                    sim = StaticSimulation(green_time=6, yellow_time=2, red_time=6)
+                tick_count = 0
+                while tick_count < ticks:
+                    sim.step()
+                    tick_count += 1
+                # Calcular flujo promedio total
+                total_A = sum(cA for (_, cA, cB) in sim.log)
+                total_B = sum(cB for (_, cA, cB) in sim.log)
+                avg_flow_total = (total_A + total_B) / ticks
+                if sim_type == "auto":
+                    results_auto.append(avg_flow_total)
+                else:
+                    results_static.append(avg_flow_total)
+
+        avg_auto = sum(results_auto) / num_runs
+        avg_static = sum(results_static) / num_runs
+
+        messagebox.showinfo(
+            "Comparación de Flujo Promedio",
+            f"Simulaciones por tipo: {num_runs}\nTicks por simulación: {ticks}\n\n"
+            f"Autoorganizada: {avg_auto:.2f} vehículos/tick\n"
+            f"Estática: {avg_static:.2f} vehículos/tick"
+        )
+
+    def reset_simulation(self, static=False):
         self.running = False
         self.paused = False
         self.tick_count = 0
 
-        # Crear nueva simulación
-        self.simulation = Simulation()
+        # Elegir tipo de simulación según el radiobutton
+        if self.sim_type.get() == "static":
+            
+            self.simulation = StaticSimulation(green_time=6, yellow_time=2, red_time=6)
+        else:
+            self.simulation = Simulation()
 
         # Actualizar estadísticas
         self.update_stats()
-
         # Dibujar estado inicial
         self.draw_simulation()
 
@@ -168,6 +220,20 @@ class TrafficSimulationGUI:
 
     def pause_simulation(self):
         self.paused = not self.paused
+        if self.paused and self.simulation and self.tick_count > 0:
+            # Calcular flujo promedio
+            total_A = sum(cA for (_, cA, cB) in self.simulation.log)
+            total_B = sum(cB for (_, cA, cB) in self.simulation.log)
+            total_crossed = total_A + total_B
+            avg_flow_A = total_A / self.tick_count
+            avg_flow_B = total_B / self.tick_count
+            avg_flow_total = total_crossed / self.tick_count
+            sim_type_str = "Estática" if self.sim_type.get() == "static" else "Autoorganizada"
+            messagebox.showinfo(
+                "Promedio de Flujo",
+                f"🚗 Flujo promedio actual ({sim_type_str}):\n"
+                f"A = {avg_flow_A:.2f}  |  B = {avg_flow_B:.2f}  |  Total = {avg_flow_total:.2f} vehículos/tick"
+            )
 
     def run_simulation_thread(self):
         while self.running and self.tick_count < MAX_TICKS:
@@ -196,8 +262,23 @@ class TrafficSimulationGUI:
             total_crossed = total_A + total_B
             efficiency = total_crossed / max(1, self.tick_count)
 
+            # NUEVO: Flujo promedio por semáforo y total
+            avg_flow_A = total_A / max(1, self.tick_count)
+            avg_flow_B = total_B / max(1, self.tick_count)
+            avg_flow_total = total_crossed / max(1, self.tick_count)
+
             # Actualizar labels
             self.stats_labels["tick"].config(text=str(self.tick_count))
+
+            # NUEVO: Mostrar flujo promedio en la ventana
+            if not hasattr(self, 'flow_label'):
+                self.flow_label = tk.Label(self.root, text="", bg='#2c3e50', fg='#00ff99', font=('Arial', 12, 'bold'))
+                self.flow_label.place(x=20, y=660)  # Ajusta la posición si lo deseas
+
+            sim_type_str = "Estática" if self.sim_type.get() == "static" else "Autoorganizada"
+            self.flow_label.config(
+                text=f"🚗 Flujo promedio ({sim_type_str}):  A = {avg_flow_A:.2f}  |  B = {avg_flow_B:.2f}  |  Total = {avg_flow_total:.2f} vehículos/tick"
+            )
 
             # Estados de semáforos con colores
             light_colors = {'RED': '🔴', 'YELLOW': '🟡', 'GREEN': '🟢'}

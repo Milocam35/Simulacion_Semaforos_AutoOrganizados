@@ -1,0 +1,72 @@
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+venv/
+env/
+.venv/
+.env/
+
+# Archivos de dependencias locales
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Archivos de configuración de entornos
+*.env
+*.venv
+*.egg-info/
+.eggs/
+*.egg
+
+# Archivos de distribución / empaquetado
+build/
+dist/
+wheels/
+*.whl
+*.manifest
+*.spec
+
+# Archivos de testing / coverage
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Logs
+*.log
+
+# Configuración de IDEs / editores
+.vscode/
+.idea/
+*.iml
+
+# Archivos de Jupyter Notebook
+.ipynb_checkpoints
+
+# Archivos temporales del sistema
+.DS_Store
+Thumbs.db
+
+# Configuración de MLflow, DVC u otros experimentos
+mlruns/
+.dvc/
+.cache/
+
+# Archivos de proyectos específicos de Python
+.pyre/
+.mypy_cache/
+.pytype/
+
+# Configuración de Poetry
+poetry.lock
+
+# Archivos de Hydra
+outputs/
+multirun/
