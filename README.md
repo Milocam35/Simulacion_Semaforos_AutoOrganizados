@@ -170,3 +170,10 @@ n = 3  # puede ser muy sensible, cambia por pocos autos
 ```
 
 En conclusión, los semáforos estáticos pueden resultar más rápidos en condiciones de tráfico estable y balanceado, mientras que los autoorganizados ofrecen mejoras significativas cuando las condiciones cambian de manera dinámica. Por ello, el valor de cada sistema no radica en la velocidad aislada de los ciclos, sino en su capacidad de adaptarse (o no) al contexto real del flujo vehicular.
+
+# 4. Codigo base de los Semaforos AutoOrganizados
+
+A continuación se encuentra el link que contiene los borradores o codigos iniciales utilizados para elaborar el algoritmo.
+
+[Ver simulación en Google Colab](https://colab.research.google.com/drive/1YNyg5TVh7IJDuTIjBXVnflSGOtVcmdpV?usp=sharing)
+
